@@ -8,8 +8,10 @@ import (
 	"os"
 	"slices"
 
+	"github.com/jsusmachaca/godo/api/response"
+	"github.com/jsusmachaca/godo/internal/validation"
+	"github.com/jsusmachaca/godo/pkg/file"
 	"github.com/jsusmachaca/godo/pkg/model"
-	"github.com/jsusmachaca/godo/pkg/util"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -37,7 +39,7 @@ func init() {
 func Index(w http.ResponseWriter, r *http.Request) {
 	var tasksList []model.Task
 
-	err := util.ReadJson(taskFile, &tasksList)
+	err := file.ReadJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -58,7 +60,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func GetAll(w http.ResponseWriter, r *http.Request) {
 	var tasksList []model.Task
 
-	err := util.ReadJson(taskFile, &tasksList)
+	err := file.ReadJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -73,9 +75,9 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 	var tasksList []model.Task
 	var body model.Task
 
-	err := util.RequestValidator(r.Body, &body)
+	err := validation.RequestValidator(r.Body, &body)
 	if err != nil {
-		if errors.Is(err, util.ErrInvalidDataType) {
+		if errors.Is(err, validation.ErrInvalidDataType) {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte(`{"error": "Invalid type data"}`))
@@ -87,7 +89,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = util.ReadJson(taskFile, &tasksList)
+	err = file.ReadJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -99,7 +101,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 
 	tasksList = append(tasksList, body)
 
-	err = util.WriteJson(taskFile, &tasksList)
+	err = file.WriteJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -107,7 +109,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := model.Response{
+	response := response.Response{
 		Success: true,
 		Data:    body,
 	}
@@ -119,9 +121,9 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	var tasksList []model.Task
 	var body model.Task
 
-	err := util.RequestValidator(r.Body, &body)
+	err := validation.RequestValidator(r.Body, &body)
 	if err != nil {
-		if errors.Is(err, util.ErrInvalidDataType) {
+		if errors.Is(err, validation.ErrInvalidDataType) {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte(`{"error": "Invalid type data"}`))
@@ -133,7 +135,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = util.ReadJson(taskFile, &tasksList)
+	err = file.ReadJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -145,7 +147,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return task.ID == body.ID
 	})
 
-	err = util.WriteJson(taskFile, &tasksList)
+	err = file.WriteJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -162,7 +164,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	var body model.Task
 	id := r.PathValue("id")
 
-	err := util.ReadJson(taskFile, &tasksList)
+	err := file.ReadJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -170,9 +172,9 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = util.RequestValidator(r.Body, &body)
+	err = validation.RequestValidator(r.Body, &body)
 	if err != nil {
-		if errors.Is(err, util.ErrInvalidDataType) {
+		if errors.Is(err, validation.ErrInvalidDataType) {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte(`{"error": "Invalid type data"}`))
@@ -192,7 +194,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = util.WriteJson(taskFile, &tasksList)
+	err = file.WriteJson(taskFile, &tasksList)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -200,7 +202,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := model.Response{
+	response := response.Response{
 		Success: true,
 		Data:    body,
 	}

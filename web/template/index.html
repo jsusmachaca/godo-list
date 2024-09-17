@@ -5,21 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>godo</title>
   <style>
-    .task-container {
+    * {
+      box-sizing: border-box;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    thead {
+      background-color: rgb(175, 185, 194);
+    }
+    th {
+      width: 100px;
+    }
+    .name {
       display: flex;
-      p {
-        margin: 0 5px;
-      }
+      align-items: center;
+    }
+    .done {
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   </style>
 </head>
 <body>
   <h1>Hola mundo</h1>
-  {{ range .Tasks }}
-    <div class="task-container">
-      <p>{{ .Name }}</p>
-      <p>{{ .Done }}</p>
-    </div>
-  {{ end }}
+  <table border="1">
+    <thead>
+      <tr>
+        <th scope="col">Tasks</th>
+        <th scope="col">Done</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Tasks }}
+        <tr>
+          <td><p class="name">{{ .Name }}</p></td>
+          <td>
+            <div class="done">
+              {{ if .Done }}
+                <input type="checkbox" checked>
+              {{ else }}
+                <input type="checkbox">
+              {{ end }}
+            </div>
+          </td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
 </body>
 </html>

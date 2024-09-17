@@ -7,11 +7,16 @@
     {
         "id": "632c4932-0c3d-4e68-8689-9dc496ada659",
         "name": "Hacer tarea",
-        "done": false
+        "done": true
     },
     {
         "id": "53d7ea8f-4d67-4626-830b-a9469a4bc609",
         "name": "Jugar",
         "done": false
+    },
+    {
+        "id": "bc9c9d6a-3a1c-4c32-b9f4-e272e5634919",
+        "name": "Morirme",
+        "done": true
     }
 ]
