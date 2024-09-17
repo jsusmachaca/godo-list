@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>godo</title>
+  <style>
+    .task-container {
+      display: flex;
+      p {
+        margin: 0 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Hola mundo</h1>
+  {{ range .Tasks }}
+    <div class="task-container">
+      <p>{{ .Name }}</p>
+      <p>{{ .Done }}</p>
+    </div>
+  {{ end }}
+</body>
+</html>
