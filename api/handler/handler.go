@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -15,9 +16,17 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var taskFile = os.Args[1]
+var taskFile string
 
 func init() {
+	if len(os.Args) < 2 {
+		fmt.Println("Please indicate the path of the task file, " +
+			"e.g., \033[32m./main $(pwd)/tasks.json\033[0m")
+		os.Exit(1)
+		return
+	}
+	taskFile = os.Args[1]
+
 	file, err := os.Open(taskFile)
 	if err != nil {
 		if os.IsNotExist(err) {
