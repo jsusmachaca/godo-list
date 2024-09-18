@@ -25,7 +25,7 @@ func init() {
 			if err != nil {
 				panic(err)
 			}
-			_, err = file.WriteString("[]")
+			_, err = file.WriteString("[]\n")
 			if err != nil {
 				panic(err)
 			}
