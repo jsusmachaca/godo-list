@@ -1,0 +1,21 @@
+* {
+    box-sizing: border-box;
+}
+table {
+    border-collapse: collapse;
+}
+thead {
+    background-color: rgb(175, 185, 194);
+}
+th {
+    width: 100px;
+}
+.name {
+    display: flex;
+    align-items: center;
+}
+.done {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

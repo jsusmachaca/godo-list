@@ -17,7 +17,9 @@ func routes(mux *http.ServeMux) {
 
 func main() {
 	mux := http.NewServeMux()
+	fs := http.FileServer(http.Dir("web/static/"))
 
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 	routes(mux)
 
 	server := &http.Server{
