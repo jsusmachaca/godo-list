@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -66,16 +67,35 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func GetAll(w http.ResponseWriter, r *http.Request) {
+func GetAll(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	var tasksList []model.Task
+	var tasks model.Task
 
-	err := file.ReadJson(taskFile, &tasksList)
+	query := `SELECT * FROM tasks;`
+
+	rows, err := db.Query(query)
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"error": "Error to parsing data"}`))
 		return
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		rows.Scan(
+			&tasks.ID,
+			&tasks.Name,
+			&tasks.Done,
+		)
+		tasksList = append(tasksList, tasks)
+	}
+	if len(tasksList) == 0 {
+		w.Header().Add("Content-Type", "application/json")
+		w.Write([]byte("[]"))
+		return
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(tasksList)
 }
