@@ -26,13 +26,21 @@ func init() {
 }
 
 func routes(mux *http.ServeMux, db *sql.DB) {
-	mux.HandleFunc("GET /", handler.Index)
-	mux.HandleFunc("GET /api/tasks", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetAll(db, w, r)
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		handler.Index(w, r, db)
 	})
-	mux.HandleFunc("POST /api/add-task", handler.AddTask)
-	mux.HandleFunc("DELETE /api/delete-task", handler.DeleteTask)
-	mux.HandleFunc("PUT /api/update-task/{id}", handler.UpdateTask)
+	mux.HandleFunc("GET /api/tasks", func(w http.ResponseWriter, r *http.Request) {
+		handler.GetAll(w, r, db)
+	})
+	mux.HandleFunc("POST /api/add-task", func(w http.ResponseWriter, r *http.Request) {
+		handler.AddTask(w, r, db)
+	})
+	mux.HandleFunc("DELETE /api/delete-task/{id}", func(w http.ResponseWriter, r *http.Request) {
+		handler.DeleteTask(w, r, db)
+	})
+	mux.HandleFunc("PUT /api/update-task/{id}", func(w http.ResponseWriter, r *http.Request) {
+		handler.UpdateTask(w, r, db)
+	})
 }
 
 func main() {
