@@ -2,13 +2,16 @@ package config
 
 import (
 	"database/sql"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func GetConnection() (*sql.DB, error) {
+	DB_NAME := os.Getenv("DB_NAME")
+
 	var err error
-	db, err := sql.Open("sqlite3", "db.sqlite3")
+	db, err := sql.Open("sqlite3", DB_NAME)
 	if err != nil {
 		return nil, err
 	}

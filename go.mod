@@ -3,6 +3,7 @@ module github.com/jsusmachaca/godo
 go 1.23.1
 
 require (
+	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/satori/go.uuid v1.2.0
 )

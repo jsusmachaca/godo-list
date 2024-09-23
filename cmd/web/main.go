@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"github.com/jsusmachaca/godo/api/handler"
 	"github.com/jsusmachaca/godo/internal/config"
 )
@@ -13,6 +14,10 @@ import (
 var db *sql.DB
 
 func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
 	var err error
 	db, err = config.GetConnection()
 	if err != nil {
