@@ -1,5 +1,21 @@
 services:
+  db:
+    image: mcjesus/sqlite3:1-alpine3.20.3
+    environment:
+      - DB_NAME=db.sqlite3
+    volumes:
+      - database:/databases
+
   api:
     build: .
+    environment:
+      - DB_NAME=/databases/db.sqlite3
+    volumes:
+      - database:/databases
     ports:
       - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  database:

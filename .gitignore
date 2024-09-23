@@ -1,2 +1,4 @@
 *.tar.gz
 src/
+.env
+.db.sqlite3

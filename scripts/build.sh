@@ -4,10 +4,10 @@ ARCH=$(uname -m)
 
 case $ARCH in
     x86_64)
-        GOARCH="amd64"
+        export GOARCH="amd64"
         ;;
     i686|i386)
-        GOARCH="386"
+        export GOARCH="386"
         ;;
     *)
         echo "Unsupported architecture: $ARCH"
@@ -15,7 +15,9 @@ case $ARCH in
         ;;
 esac
 
-if ! GOARCH=$GOARCH GOOS=linux go build cmd/web/main.go; then
+export GOOS=linux
+
+if ! go build cmd/web/main.go; then
     echo "Build failed"
     exit 1
 fi
