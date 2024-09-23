@@ -21,12 +21,12 @@ func init() {
 	var err error
 	db, err = config.GetConnection()
 	if err != nil {
-		log.Fatal("failed to connect to database, please check if file exists")
+		log.Fatalf("failed to connect to database, please check if file exists: %v", err)
 	}
 
 	err = config.Migrate(db)
 	if err != nil {
-		log.Fatal("failed to migrate database, please check if file exists")
+		log.Fatalf("failed to migrate database, please check if file exists: %v", err)
 	}
 }
 
