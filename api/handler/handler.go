@@ -35,11 +35,6 @@ func Index(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		)
 		tasksList = append(tasksList, tasks)
 	}
-	if len(tasksList) == 0 {
-		w.Header().Add("Content-Type", "application/json")
-		w.Write([]byte("[]"))
-		return
-	}
 
 	tmpl, err := template.ParseFiles("web/template/index.html")
 	if err != nil {
