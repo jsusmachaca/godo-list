@@ -17,7 +17,7 @@ esac
 
 export GOOS=linux
 
-if ! go build cmd/web/main.go; then
+if ! go build cmd/todo/main.go; then
     echo "Build failed"
     exit 1
 fi
