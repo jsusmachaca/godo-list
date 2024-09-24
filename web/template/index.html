@@ -8,33 +8,155 @@
   <title>godo</title>
 </head>
 <body>
+  <div id="background">
+    <img src="/static/img/gopher.png" alt="Logo">
+  </div>
   <header>
-    <img src="/static/img/gropher.png" alt="Logo">
-    <h1>Godo list</h1>
+    <h1>GODO LIST <span>(Todo List in Golang)</span></h1>
   </header>
-  <table border="1">
-    <thead>
-      <tr>
-        <th scope="col">Tasks</th>
-        <th scope="col">Done</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{ range .Tasks }}
-        <tr>
-          <td><p class="name">{{ .Name }}</p></td>
-          <td>
-            <div class="done">
-              {{ if .Done }}
-                <input type="checkbox" checked>
-              {{ else }}
-                <input type="checkbox">
-              {{ end }}
-            </div>
-          </td>
-        </tr>
-      {{ end }}
-    </tbody>
-  </table>
+  <main>
+    <section id="button-container">
+      <button id="open-dialog">
+        <svg height="25px" viewBox="0 -960 960 960" width="24px" fill="#599cf1">
+          <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+        </svg>
+        Add task
+      </button>
+    </section>
+    <section class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Done</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range $i, $d := .Tasks }}
+          <tr class="rows">
+            <td>{{ $i }}</td>
+            <td>{{ .Name }}</td>
+            <td>
+              <div>
+                {{ if .Done }}
+                <input class="checkbox" type="checkbox" value="{{ .ID }}" checked>
+                {{ else }}
+                <input class="checkbox" type="checkbox" value="{{ .ID }}">
+                {{ end }}
+              </div>
+            </td>
+            <td>
+              <button class="button-delete" value="{{ .ID }}">
+                <svg height="24px" viewBox="0 -960 960 960" width="24px"  fill="#f04960">
+                  <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <dialog id="dialog">
+    <h2>Adds new task</h2>
+    <p id="message">Please type anything</p>
+    <form>
+      <input type="text" id="input-task" placeholder="Task name">
+      <button type="submit" id="close-dialog">Register</button>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog">
+    <p>Are you sure this action</p>
+    <button id="accept">Accept</button>
+    <button id="cancel">Cancel</button>
+  </dialog>
+
+  <script>
+    const $form = document.querySelector("form")
+    const $dialog = document.getElementById("dialog")
+    const $confirmDialog = document.getElementById("confirm-dialog")
+    const $openButton = document.getElementById("open-dialog")
+    const $message = document.getElementById("message")
+    const $buttonAccept = document.getElementById("accept")
+    const $buttonCancel = document.getElementById("cancel")
+
+    $openButton.onclick = () => {
+      $dialog.showModal() 
+      $form.addEventListener("submit", (e) => {
+        e.preventDefault()
+        const $taskName = document.getElementById("input-task")
+
+        if ($taskName.value != "") {
+          fetch("/api/add-task", {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              name: $taskName.value,
+              done: false
+            })
+          })
+            .then (res => res.json())
+            .then (json => {
+              console.log(json)
+              window.location.reload()
+            })
+            .catch (err => console.error(err))
+        } else {
+          $message.style.opacity = 100
+          $taskName.addEventListener("focus", () => {
+            $message.style.opacity = 0
+          })
+        }
+      })
+    }
+
+    const $buttonDelete = document.querySelectorAll(".button-delete")
+    $buttonDelete.forEach(button => {
+      button.onclick = () => {
+        $confirmDialog.showModal()
+        $buttonAccept.onclick = () => {
+          fetch(`/api/delete-task/${button.value}`, {
+            method: "DELETE",
+          })
+          .then (res => res.json())
+          .then (json => {
+            window.location.reload()
+          })
+          .catch (err => console.error(err))
+        }
+        $buttonCancel.onclick = () => {
+          $confirmDialog.close()
+        }
+      }
+    })
+
+    const $checkBox = document.querySelectorAll(".checkbox")
+    $checkBox.forEach(button => {
+      button.onclick = () => {
+        fetch(`/api/update-task/${button.value}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify({
+            "done": button.checked
+          })
+        })
+          .then (res => res.json())
+          .then (json => {
+            console.log(json)
+          })
+          .catch (err => console.error(err))
+      }
+    })
+ 
+  </script>
+  
 </body>
 </html>
