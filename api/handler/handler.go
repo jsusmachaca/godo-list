@@ -35,31 +35,13 @@ func Index(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func GetAll(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	var tasksList []model.Task
-	var tasks model.Task
+	task := task.TaskRepository{DB: db}
 
-	query := `SELECT * FROM tasks;`
-
-	rows, err := db.Query(query)
+	tasksList, err := task.GetAll()
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to parsing data"}`))
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		rows.Scan(
-			&tasks.ID,
-			&tasks.Name,
-			&tasks.Done,
-		)
-		tasksList = append(tasksList, tasks)
-	}
-	if len(tasksList) == 0 {
-		w.Header().Add("Content-Type", "application/json")
-		w.Write([]byte("[]"))
+		w.Write([]byte(`{"error": "Error to obtain data"}`))
 		return
 	}
 
@@ -111,28 +93,20 @@ func AddTask(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 func DeleteTask(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	id := r.PathValue("id")
+	task := task.TaskRepository{DB: db}
 
-	query := `DELETE FROM tasks WHERE id=?;`
-	stmt, err := db.Prepare(query)
+	err := task.Delete(id)
 	if err != nil {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to delete data"}`))
-		return
-	}
-	defer stmt.Close()
+		var resp map[string]string
+		if err.Error() == "1 row was expected to be affected" {
+			resp = map[string]string{"error": "1 row was expected to be affected"}
+		} else {
+			resp = map[string]string{"error": "Error to parsing data"}
+		}
 
-	result, err := stmt.Exec(id)
-	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to delete data"}`))
-		return
-	}
-	if i, err := result.RowsAffected(); err != nil || i != 1 {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "1 row was expected to be affected "}`))
+		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
@@ -143,42 +117,35 @@ func DeleteTask(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 func UpdateTask(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var body model.Task
 	id := r.PathValue("id")
+	task := task.TaskRepository{DB: db}
 
 	err := validation.RequestValidator(r.Body, &body)
 	if err != nil {
+		var resp map[string]string
 		if errors.Is(err, validation.ErrInvalidDataType) {
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNotAcceptable)
-			w.Write([]byte(`{"error": "Invalid type data"}`))
-			return
+			resp = map[string]string{"error": "Invalid type data"}
+		} else {
+			resp = map[string]string{"error": "Error to parsing data"}
 		}
+
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to parsing data"}`))
+		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
-	query := `UPDATE tasks SET done=? WHERE id=?`
-	stmt, err := db.Prepare(query)
+	err = task.Update(id, &body)
 	if err != nil {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to delete data"}`))
-		return
-	}
-	defer stmt.Close()
+		var resp map[string]string
+		if err.Error() == "1 row was expected to be affected" {
+			resp = map[string]string{"error": "1 row was expected to be affected"}
+		} else {
+			resp = map[string]string{"error": "Error to parsing data"}
+		}
 
-	result, err := stmt.Exec(body.Done, id)
-	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Error to delete data"}`))
-		return
-	}
-	if i, err := result.RowsAffected(); err != nil || i != 1 {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "1 row was expected to be affected "}`))
+		json.NewEncoder(w).Encode(resp)
 		return
 	}
 

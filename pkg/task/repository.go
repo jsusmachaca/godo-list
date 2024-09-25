@@ -90,3 +90,52 @@ func (taskRepository *TaskRepository) Insert(body *model.Task) error {
 
 	return nil
 }
+
+func (taskRepository *TaskRepository) Delete(id string) error {
+	query := "DELETE FROM tasks WHERE id=?"
+
+	stmt, err := taskRepository.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	i, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i != 1 {
+		return errors.New("1 row was expected to be affected")
+	}
+
+	return nil
+}
+
+func (taskRepository *TaskRepository) Update(id string, body *model.Task) error {
+	query := `UPDATE tasks SET done=? WHERE id=?`
+	stmt, err := taskRepository.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(body.Done, id)
+	if err != nil {
+		return err
+	}
+
+	i, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i != 1 {
+		return errors.New("1 row was expected to be affected")
+	}
+
+	return nil
+}
