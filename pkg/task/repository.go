@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/jsusmachaca/godo/pkg/model"
+	uuid "github.com/satori/go.uuid"
 )
 
 type TaskRepository struct {
@@ -63,7 +64,9 @@ func (taskRepository *TaskRepository) Filter(id string) (model.Task, error) {
 	return task, nil
 }
 
-func (taskRepository *TaskRepository) Insert(id string, name string, done bool) error {
+func (taskRepository *TaskRepository) Insert(body *model.Task) error {
+	body.ID = uuid.NewV4().String()
+
 	query := "INSERT INTO tasks VALUES(?, ?, ?);"
 
 	stmt, err := taskRepository.DB.Prepare(query)
@@ -72,12 +75,16 @@ func (taskRepository *TaskRepository) Insert(id string, name string, done bool) 
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(id, name, done)
+	result, err := stmt.Exec(body.ID, body.Name, body.Done)
 	if err != nil {
 		return err
 	}
 
-	if i, err := result.RowsAffected(); err != nil || i != 1 {
+	i, err := result.RowsAffected()
+	if err != nil || i != 1 {
+		return err
+	}
+	if i != 1 {
 		return errors.New("1 row was expected to be affected")
 	}
 

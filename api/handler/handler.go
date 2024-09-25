@@ -11,7 +11,6 @@ import (
 	"github.com/jsusmachaca/godo/internal/validation"
 	"github.com/jsusmachaca/godo/pkg/model"
 	"github.com/jsusmachaca/godo/pkg/task"
-	uuid "github.com/satori/go.uuid"
 )
 
 func Index(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -87,9 +86,7 @@ func AddTask(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	body.ID = uuid.NewV4().String()
-
-	err = task.Insert(body.ID, body.Name, body.Done)
+	err = task.Insert(&body)
 	if err != nil {
 		var resp map[string]string
 		if err.Error() == "1 row was expected to be affected" {
