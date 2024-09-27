@@ -9,7 +9,7 @@ RUN apk update && \
 
 RUN scripts/build.sh
 
-RUN tar -xvf webapp.tar.gz
+RUN tar -xzvf webapp.tar.gz
 
 FROM golang:1.23.1-alpine3.20
 
